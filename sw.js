@@ -1,4 +1,4 @@
-const CACHE = 'livrocaixa-v1';
+const CACHE = 'livrocaixa-v2';
 const ASSETS = [
   './',
   './index.html',
