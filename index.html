@@ -705,16 +705,22 @@ function saveState(){
 // ============================================================
 // AUTH
 // ============================================================
-document.getElementById('btnLogin').addEventListener('click', async ()=>{
-  document.getElementById('loginMsg').textContent = 'Abrindo login...';
-  try{
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  }catch(e){
-    document.getElementById('loginMsg').textContent = 'Erro: '+e.message;
+
+// 1. Fica ouvindo o retorno do Google após o redirecionamento
+getRedirectResult(auth).catch((error) => {
+  if (error) {
+    document.getElementById('loginMsg').textContent = 'Erro ao retornar do Google: ' + error.message;
   }
 });
 
+// 2. Botão de login (apenas dispara a ação de ir para o Google)
+document.getElementById('btnLogin').addEventListener('click', () => {
+  document.getElementById('loginMsg').textContent = 'Redirecionando para o Google...';
+  const provider = new GoogleAuthProvider();
+  signInWithRedirect(auth, provider);
+});
+
+// 3. Funções de Logout
 function handleLogout(){
   if(!confirm('Deseja sair da conta?')) return;
   signOut(auth);
@@ -722,6 +728,7 @@ function handleLogout(){
 document.getElementById('btnLogout').addEventListener('click', handleLogout);
 document.getElementById('btnLogout2').addEventListener('click', handleLogout);
 
+// 4. Observador de estado (verifica se está logado ou não)
 onAuthStateChanged(auth, async user => {
   if(user){
     currentUser = user;
@@ -751,7 +758,7 @@ onAuthStateChanged(auth, async user => {
     if(unsubFirestore){ unsubFirestore(); unsubFirestore=null; }
   }
 });
-
+  
 // ============================================================
 // TOAST
 // ============================================================
